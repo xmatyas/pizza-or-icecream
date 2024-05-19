@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Classifier</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Image Classifier: Pizza or Ice Cream?</h1>
+    <input type="file" id="imageUpload" accept="image/*" onchange="previewImage();" style="display:none;">
+    <button id="actionButton" onclick="selectImage()">Choose Image</button>
+    <div id="imagePreviewContainer">
+        <img id="imagePreview" src="#" alt="Image Preview" style="display: none;">
+        <p id="prediction"></p>
+    </div>
+
+    <script>
+        function selectImage() {
+            document.getElementById('imageUpload').value = ''; // Clear the previous selection
+            document.getElementById('imageUpload').click();
+        }
+    
+        function previewImage() {
+            document.getElementById('prediction').innerText = '';
+            const input = document.getElementById('imageUpload');
+            const imageContainer = document.getElementById('imagePreview');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    imageContainer.src = e.target.result;
+                    imageContainer.style.display = 'block';
+                };
+    
+                reader.readAsDataURL(input.files[0]);
+    
+                // Change the button functionality to upload and predict
+                const button = document.getElementById('actionButton');
+                button.innerText = 'Upload and Predict';
+                button.onclick = uploadImage;
+            }
+        }
+    
+        function uploadImage() {
+            const imageInput = document.getElementById('imageUpload');
+            if (imageInput.files.length > 0) {
+                const formData = new FormData();
+                formData.append('image', imageInput.files[0]);
+    
+                fetch('/predict', {
+                    method: 'POST',
+                    body: formData,
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('prediction').innerText = 'Prediction: ' + data.prediction;
+                    // Reset the button for a new upload
+                    resetButton();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    resetButton();
+                });
+            } else {
+                alert('Please select an image file first.');
+            }
+        }
+    
+        function resetButton() {
+            const button = document.getElementById('actionButton');
+            button.innerText = 'Choose Image';
+            button.onclick = selectImage;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+# Ignore basic Python folders
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore venv folder
+.tf
+
+# Ignore file used for building ML model
+dataset/
+ml_builder.py
+
+# Ignore docker related
+Dockerfile
